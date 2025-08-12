@@ -1,47 +1,55 @@
+import os
 import logging
 from dotenv import load_dotenv
-from supabase_client import buscar_contatos
-from zapi_client import enviar_mensagem
-import os
+from services.contatos_service import buscar_contatos
+from services.mensagem_service import enviar_mensagem
 
-# Carrega variáveis do .env explicitamente da raiz do projeto
-# Isso garante que as credenciais sejam lidas corretamente, independente de onde o script é executado
+#exibe data/hora e mensagem de forma simples
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+
+# carrega as credenciais do arquivo .env
 env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path=env_path)
 
-# Exibe as variáveis carregadas para facilitar o debug inicial
-print("SUPABASE_URL:", os.getenv("SUPABASE_URL"))
-print("SUPABASE_KEY:", os.getenv("SUPABASE_KEY"))
-
-# Configuração de logs simples e legíveis
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Mensagem personalizada que será enviada para cada contato
-MENSAGEM = "Olá, {{nome_completo}}! Esta é uma mensagem automática."
-
-# Função principal do sistema
-# Busca os contatos no Supabase e envia mensagem personalizada via Z-API
-# Todos os erros são tratados e logados de forma amigável
+#mensagem que será personalizada com o nome de cada contato
+MENSAGEM = "Olá, {{nome}}! Esta é uma mensagem automática do sistema."
 
 def main():
-    supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_KEY")
-    try:
-        contatos = buscar_contatos(supabase_url, supabase_key)
-        if not contatos:
-            logging.warning("Nenhum contato encontrado no banco. Verifique se há dados cadastrados.")
-        for contato in contatos:
-            nome = contato.get('nome_completo', 'Contato')
-            numero = contato.get('numero')
-            if not numero:
-                logging.warning(f"Contato '{nome}' não possui número cadastrado. Pulando...")
-                continue
-            mensagem = MENSAGEM.replace("{{nome_completo}}", nome)
-            logging.info(f"Enviando mensagem para {nome} ({numero})...")
-            enviar_mensagem(numero, mensagem)
-    except Exception as e:
-        logging.error(f"Erro inesperado na execução principal: {e}")
-        logging.error("Verifique suas credenciais, conexão com Supabase e Z-API, e tente novamente.")
+    """
+    Função principal:
+    1. Busca todos os contatos cadastrados no supabase
+    2. Pra cada contato, personaliza a mensagem com o nome
+    3. Envia a mensagem pelo WhatsApp usando Z-api
+    """
+    logging.info("🚀 Iniciando sistema de envio de mensagens...")
+
+    # Busca todos os contatos na tabela do Supabase
+    contatos = buscar_contatos()
+
+    if not contatos:
+        logging.warning("⚠️ Nenhum contato encontrado na base de dados!")
+        return
+
+    logging.info(f"📱 Preparando envio para {len(contatos)} contato(s)")
+
+    # Processa os contatos individualmente
+    for contato in contatos:
+        nome = contato.get('nome_completo', 'Amigo')
+        numero = contato.get('numero')
+
+        # Pula contatos sem número cadastrado
+        if not numero:
+            logging.warning(f"⚠️ Contato '{nome}' não possui número - pulando...")
+            continue
+
+        # Personaliza a mensagem substituindo {{nome}}
+        mensagem_personalizada = MENSAGEM.replace("{{nome}}", nome)
+
+        # registra o envio e chama a função para enviar
+        logging.info(f"📤 Enviando para {nome} ({numero})")
+        enviar_mensagem(numero, mensagem_personalizada)
+
+    logging.info("✅ Processo concluído!")
 
 if __name__ == "__main__":
     main()
