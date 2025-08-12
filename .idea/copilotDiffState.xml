@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/.env.example">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/.env.example" />
+              <option name="updatedContent" value="SUPABASE_URL=&#10;SUPABASE_KEY=&#10;ZAPI_TOKEN=&#10;ZAPI_INSTANCE=&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/.gitignore">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/.gitignore" />
+              <option name="updatedContent" value="# Ignora o ambiente virtual&#10;.venv/&#10;&#10;# Ignora arquivos de cache do Python&#10;__pycache__/&#10;*.pyc&#10;&#10;# Ignora arquivos de configuração de ambiente&#10;.env&#10;.env.*&#10;&#10;# Ignora arquivos de log&#10;*.log&#10;&#10;# Ignora arquivos do sistema&#10;.DS_Store&#10;Thumbs.db&#10;&#10;# Ignora arquivos temporários&#10;*.swp&#10;*.tmp&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/README.md">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/README.md" />
+              <option name="updatedContent" value="# Zapbase: Envio automatizado de mensagens WhatsApp via Supabase e Z-API&#10;&#10;## Passos para configurar a tabela no Supabase&#10;1. Crie um projeto no Supabase.&#10;2. Crie uma tabela chamada `contatos` com os campos:&#10;   - `id` (integer, primary key)&#10;   - `nome_contato` (text)&#10;   - `numero` (text)&#10;&#10;## Variáveis de ambiente necessárias&#10;Crie um arquivo `.env` com as seguintes variáveis:&#10;- `SUPABASE_URL`: URL do seu projeto Supabase&#10;- `SUPABASE_KEY`: Chave API do Supabase&#10;- `ZAPI_TOKEN`: Token da API Z-API&#10;- `ZAPI_INSTANCE`: ID da instância Z-API&#10;&#10;## Instalação&#10;```bash&#10;pip install -r requirements.txt&#10;```&#10;&#10;## Execução&#10;```bash&#10;python main.py&#10;```&#10;&#10;## Observações&#10;- O projeto busca até 3 contatos no Supabase e envia mensagens personalizadas via Z-API.&#10;- Mensagem personalizada usando o campo `nome_contato`.&#10;- Tratamento de erros e logs simples incluídos.&#10;&#10;---&#10;&#10;Para dúvidas, consulte os comentários no código ou abra uma issue no repositório.&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/main.py">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/main.py" />
+              <option name="updatedContent" value="import os&#10;import logging&#10;from dotenv import load_dotenv&#10;from supabase import create_client, Client&#10;import requests&#10;&#10;# Carrega variáveis do .env&#10;load_dotenv()&#10;&#10;# Configuração de logs simples&#10;logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')&#10;&#10;# Variáveis sensíveis&#10;SUPABASE_URL = os.getenv('SUPABASE_URL')&#10;SUPABASE_KEY = os.getenv('SUPABASE_KEY')&#10;ZAPI_TOKEN = os.getenv('ZAPI_TOKEN')&#10;ZAPI_INSTANCE = os.getenv('ZAPI_INSTANCE')&#10;&#10;# Mensagem personalizada&#10;MENSAGEM = &quot;Olá, {{nome_contato}}! Esta é uma mensagem automática.&quot;&#10;&#10;# Função para buscar contatos no Supabase&#10;def buscar_contatos():&#10;    try:&#10;        supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)&#10;        response = supabase.table('contatos').select('nome_contato,numero').limit(3).execute()&#10;        contatos = response.data&#10;        logging.info(f&quot;{len(contatos)} contatos encontrados.&quot;)&#10;        return contatos&#10;    except Exception as e:&#10;        logging.error(f&quot;Erro ao buscar contatos: {e}&quot;)&#10;        return []&#10;&#10;# Função para enviar mensagem via Z-API&#10;def enviar_mensagem(numero, mensagem):&#10;    url = f&quot;https://api.z-api.io/instances/{ZAPI_INSTANCE}/token/{ZAPI_TOKEN}/send-message&quot;&#10;    payload = {&#10;        &quot;phone&quot;: numero,&#10;        &quot;message&quot;: mensagem&#10;    }&#10;    try:&#10;        r = requests.post(url, json=payload)&#10;        if r.status_code == 200:&#10;            logging.info(f&quot;Mensagem enviada para {numero}&quot;)&#10;        else:&#10;            logging.error(f&quot;Falha ao enviar para {numero}: {r.text}&quot;)&#10;    except Exception as e:&#10;        logging.error(f&quot;Erro ao enviar mensagem: {e}&quot;)&#10;&#10;# Execução principal&#10;def main():&#10;    contatos = buscar_contatos()&#10;    for contato in contatos:&#10;        nome = contato.get('nome_contato', 'Contato')&#10;        numero = contato.get('numero')&#10;        mensagem = MENSAGEM.replace(&quot;{{nome_contato}}&quot;, nome)&#10;        enviar_mensagem(numero, mensagem)&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    main()&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/requirements.txt">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/requirements.txt" />
+              <option name="updatedContent" value="supabase&#10;requests&#10;python-dotenv" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/main.py">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/main.py" />
+              <option name="originalContent" value="import logging&#10;from dotenv import load_dotenv&#10;from supabase_client import buscar_contatos&#10;from zapi_client import enviar_mensagem&#10;import os&#10;&#10;# Carrega variáveis do .env explicitamente da raiz do projeto&#10;env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')&#10;load_dotenv(dotenv_path=env_path)&#10;&#10;# Debug: Verifica se as variáveis do .env estão sendo carregadas corretamente&#10;print(&quot;SUPABASE_URL:&quot;, os.getenv(&quot;SUPABASE_URL&quot;))&#10;print(&quot;SUPABASE_KEY:&quot;, os.getenv(&quot;SUPABASE_KEY&quot;))&#10;&#10;# Configuração de logs simples&#10;logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')&#10;&#10;# Mensagem personalizada&#10;MENSAGEM = &quot;Olá, {{nome_completo}}! Esta é uma mensagem automática.&quot;&#10;&#10;# Execução principal&#10;def main():&#10;    supabase_url = os.getenv(&quot;SUPABASE_URL&quot;)&#10;    supabase_key = os.getenv(&quot;SUPABASE_KEY&quot;)&#10;    contatos = buscar_contatos(supabase_url, supabase_key)&#10;    for contato in contatos:&#10;        nome = contato.get('nome_completo', 'Contato')&#10;        numero = contato.get('numero')&#10;        mensagem = MENSAGEM.replace(&quot;{{nome_completo}}&quot;, nome)&#10;        enviar_mensagem(numero, mensagem)&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    main()&#10;" />
+              <option name="updatedContent" value="import logging&#10;from dotenv import load_dotenv&#10;from supabase_client import buscar_contatos&#10;from zapi_client import enviar_mensagem&#10;import os&#10;&#10;# Carrega variáveis do .env explicitamente da raiz do projeto&#10;# Isso garante que as credenciais sejam lidas corretamente, independente de onde o script é executado&#10;env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')&#10;load_dotenv(dotenv_path=env_path)&#10;&#10;# Exibe as variáveis carregadas para facilitar o debug inicial&#10;print(&quot;SUPABASE_URL:&quot;, os.getenv(&quot;SUPABASE_URL&quot;))&#10;print(&quot;SUPABASE_KEY:&quot;, os.getenv(&quot;SUPABASE_KEY&quot;))&#10;&#10;# Configuração de logs simples e legíveis&#10;logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')&#10;&#10;# Mensagem personalizada que será enviada para cada contato&#10;MENSAGEM = &quot;Olá, {{nome_completo}}! Esta é uma mensagem automática.&quot;&#10;&#10;# Função principal do sistema&#10;# Busca os contatos no Supabase e envia mensagem personalizada via Z-API&#10;# Todos os erros são tratados e logados de forma amigável&#10;&#10;def main():&#10;    supabase_url = os.getenv(&quot;SUPABASE_URL&quot;)&#10;    supabase_key = os.getenv(&quot;SUPABASE_KEY&quot;)&#10;    try:&#10;        contatos = buscar_contatos(supabase_url, supabase_key)&#10;        if not contatos:&#10;            logging.warning(&quot;Nenhum contato encontrado no banco. Verifique se há dados cadastrados.&quot;)&#10;        for contato in contatos:&#10;            nome = contato.get('nome_completo', 'Contato')&#10;            numero = contato.get('numero')&#10;            if not numero:&#10;                logging.warning(f&quot;Contato '{nome}' não possui número cadastrado. Pulando...&quot;)&#10;                continue&#10;            mensagem = MENSAGEM.replace(&quot;{{nome_completo}}&quot;, nome)&#10;            logging.info(f&quot;Enviando mensagem para {nome} ({numero})...&quot;)&#10;            enviar_mensagem(numero, mensagem)&#10;    except Exception as e:&#10;        logging.error(f&quot;Erro inesperado na execução principal: {e}&quot;)&#10;        logging.error(&quot;Verifique suas credenciais, conexão com Supabase e Z-API, e tente novamente.&quot;)&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    main()" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/supabase_client.py">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/supabase_client.py" />
+              <option name="originalContent" value="import os&#10;from supabase import create_client, Client&#10;import logging&#10;&#10;# Função para buscar contatos no Supabase&#10;def buscar_contatos(supabase_url, supabase_key):&#10;    try:&#10;        supabase: Client = create_client(supabase_url, supabase_key)&#10;        response = supabase.table('Zapbase').select('nome_completo,numero').limit(3).execute()&#10;        contatos = response.data&#10;        logging.info(f&quot;{len(contatos)} contatos encontrados.&quot;)&#10;        return contatos&#10;    except Exception as e:&#10;        logging.error(f&quot;Erro ao buscar contatos: {e}&quot;)&#10;        return []&#10;" />
+              <option name="updatedContent" value="import os&#10;from supabase import create_client, Client&#10;import logging&#10;&#10;# Função para buscar contatos no Supabase&#10;# Busca até 3 contatos na tabela Zapbase e retorna uma lista de dicionários&#10;# Todos os erros são tratados e logados de forma amigável&#10;def buscar_contatos(supabase_url, supabase_key):&#10;    try:&#10;        supabase: Client = create_client(supabase_url, supabase_key)&#10;        response = supabase.table('Zapbase').select('nome_completo,numero').limit(3).execute()&#10;        contatos = response.data&#10;        logging.info(f&quot;{len(contatos)} contatos encontrados no Supabase.&quot;)&#10;        return contatos&#10;    except Exception as e:&#10;        logging.error(f&quot;Erro ao buscar contatos no Supabase: {e}&quot;)&#10;        logging.error(&quot;Verifique se a tabela Zapbase existe, se as colunas estão corretas e se as credenciais estão válidas.&quot;)&#10;        return []" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/src/zapi_client.py">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/src/zapi_client.py" />
+              <option name="originalContent" value="import os&#10;import requests&#10;import logging&#10;&#10;ZAPI_TOKEN = os.getenv('ZAPI_TOKEN')&#10;ZAPI_INSTANCE = os.getenv('ZAPI_INSTANCE')&#10;&#10;# Função para enviar mensagem via Z-API&#10;def enviar_mensagem(numero, mensagem):&#10;    url = f&quot;https://api.z-api.io/instances/{ZAPI_INSTANCE}/token/{ZAPI_TOKEN}/send-message&quot;&#10;    payload = {&#10;        &quot;phone&quot;: numero,&#10;        &quot;message&quot;: mensagem&#10;    }&#10;    try:&#10;        r = requests.post(url, json=payload)&#10;        if r.status_code == 200:&#10;            logging.info(f&quot;Mensagem enviada para {numero}&quot;)&#10;        else:&#10;            logging.error(f&quot;Falha ao enviar para {numero}: {r.text}&quot;)&#10;    except Exception as e:&#10;        logging.error(f&quot;Erro ao enviar mensagem: {e}&quot;)&#10;&#10;" />
+              <option name="updatedContent" value="import os&#10;import requests&#10;import logging&#10;&#10;# Função para enviar mensagem via Z-API&#10;# Recebe o número do contato e a mensagem personalizada&#10;# Todos os erros são tratados e logados de forma amigável&#10;def enviar_mensagem(numero, mensagem):&#10;    # Recupera as credenciais da Z-API do ambiente&#10;    ZAPI_TOKEN = os.getenv('ZAPI_TOKEN')&#10;    ZAPI_INSTANCE = os.getenv('ZAPI_INSTANCE')&#10;    url = f&quot;https://api.z-api.io/instances/{ZAPI_INSTANCE}/token/{ZAPI_TOKEN}/send-message&quot;&#10;    payload = {&#10;        &quot;phone&quot;: numero,&#10;        &quot;message&quot;: mensagem&#10;    }&#10;    try:&#10;        r = requests.post(url, json=payload)&#10;        if r.status_code == 200:&#10;            logging.info(f&quot;Mensagem enviada com sucesso para o número {numero}!&quot;)&#10;        else:&#10;            logging.error(f&quot;Falha ao enviar mensagem para {numero}. Resposta da API: {r.text}&quot;)&#10;            logging.error(&quot;Verifique se o número está correto, se a instância está ativa e se o token é válido.&quot;)&#10;    except Exception as e:&#10;        logging.error(f&quot;Erro inesperado ao tentar enviar mensagem para {numero}: {e}&quot;)&#10;        logging.error(&quot;Verifique sua conexão com a internet e as credenciais da Z-API.&quot;)" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
